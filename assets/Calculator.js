@@ -11,24 +11,25 @@ class Calculator {
         if (number === '.' && this.currOperand.includes('.')) return
         this.currOperand = this.currOperand.toString() + number.toString()
     }
-    setOperation(operation) {
+    setOperation(operation, className) {
         if(this.hasError()) return;
         if (this.currOperand === '') return
         if (this.prevOperand !== '') {
-            this.calc(operation);
+            this.calc(operation, className);
         } else {
             this.operation = operation;
+            this.className = className;
             this.prevOperand = this.currOperand;
             this.currOperand = '';
         }
     }
-    calc(nextOperation = '') {
+    calc(nextOperation = '', nextClassName = '') {
         if(this.hasError()) return false;
         if(this.prevOperand == '' || this.prevOperand == undefined) return false;
 
         let that = this;
         $.post('/calc/operation', {
-            operation: this.operation,
+            operation: this.className,
             val1: parseFloat(this.prevOperand),
             val2: parseFloat(this.currOperand),
         }, function(result){
@@ -36,10 +37,12 @@ class Calculator {
 
             that.currOperand = parseFloat(result.result);
             that.operation = undefined;
+            that.className = '';
             that.prevOperand = '';
 
             if(nextOperation != ''){
                 that.operation = nextOperation;
+                that.className = nextClassName;
                 that.prevOperand = that.currOperand;
                 that.currOperand = '';
             }
@@ -119,7 +122,7 @@ numberButtons.forEach(button => {
 
 operationButtons.forEach(button => {
     button.addEventListener('click', () => {
-        calculator.setOperation(button.innerText)
+        calculator.setOperation(button.innerText, button.getAttribute('data-name'))
         calculator.render()
     })
 })

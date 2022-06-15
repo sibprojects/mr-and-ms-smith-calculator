@@ -5,7 +5,7 @@ namespace App\Classes\Calculator;
 class Calculator
 {
     protected $operands = [];
-    protected $precision = 12;
+    protected $precision = 10;
 
     public function setOperands(array $operands = [])
     {
@@ -24,13 +24,19 @@ class Calculator
 
     public function setOperation(OperationInterface $operation)
     {
+        if(!($operation instanceof OperationInterface)) {
+            throw new \Exception('Operation Class not found in available list!');
+        }
+
         $this->operation = $operation;
     }
 
     public function process() : float
     {
         $result = $this->operation->calculate($this->operands);
+
         $result = round($result, $this->precision);
+
         return $result;
     }
 
